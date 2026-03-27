@@ -1,4 +1,3 @@
-// pages/Home.tsx - Fixed version
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
@@ -22,8 +21,8 @@ import {
   ArrowRightCircle,
   Crown,
   SparkleIcon,
-  Home,
 } from 'lucide-react'
+import { Home as HomeIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ProductCard } from '@/components/ProductCard'
@@ -53,7 +52,7 @@ const heroSlides = [
     cta: 'Explore Home Decor',
     link: '/products?category=home%20decor',
     image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1920&h=1080&fit=crop',
-    icon: Home,
+    icon: HomeIcon,
     category: 'home decor'
   },
   {

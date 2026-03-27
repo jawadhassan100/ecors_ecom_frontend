@@ -18,7 +18,7 @@ import { formatPrice } from '@/lib/utils'
 
 export function Cart() {
   const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore()
-  const { addToFavorites } = useFavoritesStore()
+  const { addFavorite } = useFavoritesStore()
 
   const subtotal = getTotal()
   const shipping = subtotal > 50 ? 0 : 9.99
@@ -26,7 +26,7 @@ export function Cart() {
   const total = subtotal + shipping + tax
 
   const handleMoveToFavorites = (product: any) => {
-    addToFavorites(product)
+    addFavorite(product)
     removeItem(product.id)
   }
 

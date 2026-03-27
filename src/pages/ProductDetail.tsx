@@ -99,7 +99,7 @@ export function ProductDetail() {
   if (error) return <ErrorDisplay error={error as Error} onRetry={refetch} />
   if (!product) return <ErrorDisplay error={new Error('Product not found')} />
 
-  const isFav = isFavorite(product.id)
+  const isFav = isFavorite(String(product.id))
   const images = generateMockImages(product.image)
   const inStock = product.rating?.count > 10
 

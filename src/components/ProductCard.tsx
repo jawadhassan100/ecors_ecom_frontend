@@ -23,7 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast()
   const addItem = useCartStore((state) => state.addItem)
   const { toggleFavorite, isFavorite } = useFavoritesStore()
-  const isFav = isFavorite(product.id)
+  const isFav = isFavorite(String(product.id))
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()

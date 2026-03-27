@@ -196,7 +196,7 @@ function FilterSidebar({
 function ProductCardGrid({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
   const { toggleFavorite, isFavorite } = useFavoritesStore()
-  const isFav = isFavorite(product.id)
+  const isFav = isFavorite(String(product.id))
   const isOnSale = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.regular_price)
 
   return (
@@ -254,7 +254,7 @@ function ProductCardGrid({ product }: { product: Product }) {
 function ProductCardList({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
   const { toggleFavorite, isFavorite } = useFavoritesStore()
-  const isFav = isFavorite(product.id)
+  const isFav = isFavorite(String(product.id))
   const isOnSale = product.sale_price && parseFloat(product.sale_price) < parseFloat(product.regular_price)
 
   return (
