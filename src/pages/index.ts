@@ -1,0 +1,8 @@
+export { Home } from './Home'
+export { Products } from './Products'
+export { ProductDetail } from './ProductDetail'
+export { Cart } from './Cart'
+export { Checkout } from './Checkout'
+export { Favorites } from './Favorites'
+export { About } from './About'
+export { Contact } from './Contact'
