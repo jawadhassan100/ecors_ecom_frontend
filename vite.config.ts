@@ -7,11 +7,11 @@ export default defineConfig({
    server: {
     proxy: {
       '/api': {
-        target: 'https://ecors-ecom-backend.vercel.app/',
+        target: 'https://ecors-ecom-backend.vercel.app',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'https://ecors-ecom-backend.vercel.app/',
+        target: 'https://ecors-ecom-backend.vercel.app',
         changeOrigin: true,
       }
     }
