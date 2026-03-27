@@ -49,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
 
 // Generate mock images for gallery
 function generateMockImages(mainImage: string) {
@@ -81,7 +82,7 @@ export function ProductDetail() {
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([])
   const imageRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-
+  const { toast } = useToast()
   const { data: product, isLoading, error, refetch } = useProduct(id || '')
   const { data: relatedProducts } = useProductsByCategory(product?.category ?? '')
 
@@ -108,6 +109,7 @@ export function ProductDetail() {
   const handleAddToCart = () => {
     addItem(product, quantity)
     setQuantity(1)
+    toast({title:"Product Added To Cart!"})
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

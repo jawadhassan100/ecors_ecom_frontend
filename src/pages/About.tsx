@@ -65,11 +65,11 @@ export function About() {
       <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/20 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            About ShopVite
+            About Ecors
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             We're on a mission to make online shopping simple, enjoyable, and
-            accessible to everyone. Founded in 2020, ShopVite has grown from a small
+            accessible to everyone. Founded in 2020, Ecors has grown from a small
             startup to a trusted e-commerce platform serving customers worldwide.
           </p>
         </div>
@@ -101,7 +101,7 @@ export function About() {
               </h2>
               <div className="mt-6 space-y-4 text-muted-foreground">
                 <p>
-                  ShopVite was born out of frustration with the complexity of online
+                  Ecors was born out of frustration with the complexity of online
                   shopping. Our founders, a group of tech enthusiasts and retail
                   veterans, believed that buying products online should be as simple
                   and enjoyable as visiting your favorite local store.
@@ -170,7 +170,7 @@ export function About() {
               Meet Our Team
             </h2>
             <p className="mt-4 text-muted-foreground">
-              The people behind ShopVite
+              The people behind Ecors
             </p>
           </div>
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

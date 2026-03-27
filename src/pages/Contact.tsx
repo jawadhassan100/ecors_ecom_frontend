@@ -17,7 +17,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email',
-    content: 'support@shopvite.com',
+    content: 'support@Ecors.com',
     description: 'Email us anytime',
   },
   {
