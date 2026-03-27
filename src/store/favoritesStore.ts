@@ -5,9 +5,9 @@ import type { Product } from '@/types'
 interface FavoritesState {
   items: Product[]
   addFavorite: (product: Product) => void
-  removeFavorite: (productId: number) => void
+  removeFavorite: (productId: string) => void  // Changed from number to string
   toggleFavorite: (product: Product) => void
-  isFavorite: (productId: number) => boolean
+  isFavorite: (productId: string) => boolean   // Changed from number to string
   clearFavorites: () => void
 }
 
@@ -18,7 +18,8 @@ export const useFavoritesStore = create<FavoritesState>()(
       
       addFavorite: (product: Product) => {
         set((state) => {
-          if (state.items.some((item) => item.id === product.id)) {
+          // Check if product already exists by ID (string comparison)
+          if (state.items.some((item) => String(item.id) === String(product.id))) {
             return state
           }
           return {
@@ -27,23 +28,23 @@ export const useFavoritesStore = create<FavoritesState>()(
         })
       },
       
-      removeFavorite: (productId: number) => {
+      removeFavorite: (productId: string) => {  // Changed to string
         set((state) => ({
-          items: state.items.filter((item) => item.id !== productId),
+          items: state.items.filter((item) => String(item.id) !== String(productId)),
         }))
       },
       
       toggleFavorite: (product: Product) => {
-        const isFav = get().isFavorite(product.id)
+        const isFav = get().isFavorite(String(product.id))
         if (isFav) {
-          get().removeFavorite(product.id)
+          get().removeFavorite(String(product.id))
         } else {
           get().addFavorite(product)
         }
       },
       
-      isFavorite: (productId: number) => {
-        return get().items.some((item) => item.id === productId)
+      isFavorite: (productId: string) => {  // Changed to string
+        return get().items.some((item) => String(item.id) === String(productId))
       },
       
       clearFavorites: () => {

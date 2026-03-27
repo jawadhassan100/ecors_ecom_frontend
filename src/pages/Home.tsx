@@ -1,3 +1,4 @@
+// pages/Home.tsx - Fixed version
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
@@ -21,6 +22,7 @@ import {
   ArrowRightCircle,
   Crown,
   SparkleIcon,
+  Home,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,10 +31,8 @@ import { ProductGridSkeleton } from '@/components/LoadingSkeletons'
 import { ErrorDisplay } from '@/components/ErrorBoundary'
 import { useProducts, useCategoriesWithCounts } from '@/api/hooks'
 import { AboutSection } from './AboutSection'
-import { useNewsletter } from '@/hooks/useNewsletter'
 import { useNewsletterStore } from '@/store/newsletterStore'
-
-
+import type { Product } from '@/types'
 
 // Hero Slides Data
 const heroSlides = [
@@ -171,84 +171,30 @@ function AnimatedCounter({ target, suffix = '', duration = 2 }: { target: number
   )
 }
 
-export function Home() {
-  const { data: products, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useProducts()
-  const { data: categoriesData, isLoading: categoriesLoading, error: categoriesError } = useCategoriesWithCounts()
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [email, setEmail] = useState('')
- 
-  const [emailError, setEmailError] = useState('')
-  const bestSellersRef = useRef<HTMLDivElement>(null)
-    const { isSubscribed, subscribe, unsubscribe, email: subscribedEmail } = useNewsletterStore()
+// Define Category type
+interface Category {
+  name: string
+  productCount: number
+  image?: string
+  _id?: string
+}
+
+// CategoryCard component with proper types
+interface CategoryCardProps {
+  category: Category
+  index: number
+  Icon: React.ElementType
+  colorClass: string
+}
+
+function CategoryCard({ category, index, Icon, colorClass }: CategoryCardProps) {
+  const [isHovered, setIsHovered] = useState(false)
   
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Use categories from API or empty array
-  const categories = categoriesData || []
-  
-  const featuredProducts = products?.slice(0, 8) ?? []
-  const bestSellers = products?.slice(4, 12) ?? []
-
-  // Auto-advance hero slides
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
-
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!email) {
-      setEmailError('Please enter your email address')
-      return
-    }
-    
-    if (!email.match(/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/)) {
-      setEmailError('Please enter a valid email address')
-      return
-    }
-    
-    setIsSubmitting(true)
-    setEmailError('')
-    
-    // Simulate API call
-    setTimeout(() => {
-      subscribe(email)
-      setIsSubmitting(false)
-      setEmail('')
-    }, 1000)
-  }
-
-   const handleUnsubscribe = () => {
-    unsubscribe()
-  }
-
-  const scrollBestSellers = (direction: 'left' | 'right') => {
-    if (bestSellersRef.current) {
-      const scrollAmount = 320
-      bestSellersRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      })
-    }
-  }
-
-  const currentHero = heroSlides[currentSlide]
-
-  // Format category name for display (capitalize each word)
   const formatCategoryName = (name: string) => {
     return name.split(' ').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ')
   }
-  
-
-  const CategoryCard = ({ category, index, icon: Icon, colorClass }) => {
-  const [isHovered, setIsHovered] = useState(false)
   
   return (
     <motion.div
@@ -318,79 +264,148 @@ export function Home() {
   )
 }
 
+export function Home() {
+  const { data: products, isLoading: productsLoading, error: productsError, refetch: refetchProducts } = useProducts()
+  const { data: categoriesData, isLoading: categoriesLoading, error: categoriesError } = useCategoriesWithCounts()
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const bestSellersRef = useRef<HTMLDivElement>(null)
+  const { isSubscribed, subscribe, unsubscribe, email: subscribedEmail } = useNewsletterStore()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Use categories from API or empty array
+  const categories: Category[] = categoriesData || []
+  
+  const featuredProducts = products?.slice(0, 8) ?? []
+  const bestSellers = products?.slice(4, 12) ?? []
+
+  // Auto-advance hero slides
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      setEmailError('Please enter your email address')
+      return
+    }
+    
+    if (!email.match(/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+    
+    setIsSubmitting(true)
+    setEmailError('')
+    
+    setTimeout(() => {
+      subscribe(email)
+      setIsSubmitting(false)
+      setEmail('')
+    }, 1000)
+  }
+
+  const handleUnsubscribe = () => {
+    unsubscribe()
+  }
+
+  const scrollBestSellers = (direction: 'left' | 'right') => {
+    if (bestSellersRef.current) {
+      const scrollAmount = 320
+      bestSellersRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  const currentHero = heroSlides[currentSlide]
+
+  // Format category name for display (capitalize each word)
+  const formatCategoryName = (name: string) => {
+    return name.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ')
+  }
+
   return (
     <div className="flex flex-col">
       {/* Hero Wrapper */}
-<div className="px-4 sm:px-6 lg:px-8 mt-6">
-  <section className="relative h-[500px] w-full overflow-hidden rounded-md lg:h-[600px] shadow-lg">
-    
-    {/* Background */}
-    <div className="absolute inset-0">
-      <img
-        src={currentHero.image}
-        alt={currentHero.title}
-        className="size-full object-cover transition-opacity duration-700"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
-    </div>
-
-    {/* Content */}
-    <div className="relative flex h-full items-center">
-      <div className="mx-auto w-full max-w-7xl px-6">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <span className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
-            New Arrivals
-          </span>
-
-          <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
-            {currentHero.title}
-          </h1>
-
-          <p className="mt-4 text-md sm:text-lg text-white/90">
-            {currentHero.subtitle}
-          </p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Button asChild size="lg" className="group">
-              <Link to={currentHero.link}>
-                {currentHero.cta}
-                <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
-            >
-              <Link to="/products">View All Products</Link>
-            </Button>
+      <div className="px-4 sm:px-6 lg:px-8 mt-6">
+        <section className="relative h-[500px] w-full overflow-hidden rounded-md lg:h-[600px] shadow-lg">
+          {/* Background */}
+          <div className="absolute inset-0">
+            <img
+              src={currentHero.image}
+              alt={currentHero.title}
+              className="size-full object-cover transition-opacity duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-transparent" />
           </div>
-        </motion.div>
-      </div>
-    </div>
 
-    {/* Indicators */}
-    <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
-      {heroSlides.map((_, index) => (
-        <button
-          key={index}
-          onClick={() => setCurrentSlide(index)}
-          className={`h-2 rounded-full transition-all ${
-            index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/50"
-          }`}
-        />
-      ))}
-    </div>
-  </section>
-</div>
+          {/* Content */}
+          <div className="relative flex h-full items-center">
+            <div className="mx-auto w-full max-w-7xl px-6">
+              <motion.div
+                key={currentSlide}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="mx-auto max-w-2xl text-center"
+              >
+                <span className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
+                  New Arrivals
+                </span>
+
+                <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+                  {currentHero.title}
+                </h1>
+
+                <p className="mt-4 text-md sm:text-lg text-white/90">
+                  {currentHero.subtitle}
+                </p>
+
+                <div className="mt-8 flex flex-wrap justify-center gap-4">
+                  <Button asChild size="lg" className="group">
+                    <Link to={currentHero.link}>
+                      {currentHero.cta}
+                      <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    asChild
+                    className="border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+                  >
+                    <Link to="/products">View All Products</Link>
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Indicators */}
+          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
+            {heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
 
       {/* Features Section */}
       <section className="border-y bg-card py-16">
@@ -427,194 +442,146 @@ export function Home() {
       </section>
 
       {/* Categories Section - DYNAMIC FROM YOUR BACKEND */}
-       {/* Modern Categories Section */}
-    <section className="relative py-20 overflow-hidden">
-      {/* Background Decoration */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
-      <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-      
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          {/* Badge */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 mb-4"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
           >
-            <SparkleIcon className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Shop by Category</span>
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 mb-4"
+            >
+              <SparkleIcon className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Shop by Category</span>
+            </motion.div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Browse Our Collections
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+              Discover amazing products across {categories.length} carefully curated categories
+            </p>
           </motion.div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Browse Our Collections
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover amazing products across {categories.length} carefully curated categories
-          </p>
-        </motion.div>
 
-        {categoriesLoading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-64 rounded-2xl bg-muted" />
-              </div>
-            ))}
-          </div>
-        ) : categoriesError ? (
-          <div className="text-center text-red-500 py-12">
-            <p>Error loading categories. Please refresh the page.</p>
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="text-center text-muted-foreground py-12">
-            <p>No categories found. Add some products to get started!</p>
-          </div>
-        ) : (
-          <>
-            {/* Featured Category (Big Card) */}
-            {categories[0] && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="mb-12"
-              >
-                <Link to={`/products?category=${encodeURIComponent(categories[0].name)}`}>
-                  <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/80 to-primary/60 p-8 md:p-12">
-                    <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                      <div className="text-center md:text-left">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 mb-4">
-                          <Crown className="h-4 w-4 text-white" />
-                          <span className="text-sm font-medium text-white">Most Popular</span>
-                        </div>
-                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                          {formatCategoryName(categories[0].name)}
-                        </h3>
-                        <p className="text-white/90 text-lg mb-4">
-                          {categories[0].productCount} amazing products waiting for you
-                        </p>
-                        <Button variant="secondary" size="lg" className="group">
-                          Explore Collection
-                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Button>
-                      </div>
-                      <div className="flex -space-x-4">
-                        {[...Array(4)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white"
-                          >
-                            {getCategoryIcon(categories[0].name) && 
-                              React.createElement(getCategoryIcon(categories[0].name), { className: "h-8 w-8 text-white" })
-                            }
+          {categoriesLoading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-64 rounded-2xl bg-muted" />
+                </div>
+              ))}
+            </div>
+          ) : categoriesError ? (
+            <div className="text-center text-red-500 py-12">
+              <p>Error loading categories. Please refresh the page.</p>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              <p>No categories found. Add some products to get started!</p>
+            </div>
+          ) : (
+            <>
+              {/* Featured Category (Big Card) */}
+              {categories[0] && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="mb-12"
+                >
+                  <Link to={`/products?category=${encodeURIComponent(categories[0].name)}`}>
+                    <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/80 to-primary/60 p-8 md:p-12">
+                      <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity group-hover:opacity-100" />
+                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="text-center md:text-left">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 mb-4">
+                            <Crown className="h-4 w-4 text-white" />
+                            <span className="text-sm font-medium text-white">Most Popular</span>
                           </div>
-                        ))}
+                          <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                            {formatCategoryName(categories[0].name)}
+                          </h3>
+                          <p className="text-white/90 text-lg mb-4">
+                            {categories[0].productCount} amazing products waiting for you
+                          </p>
+                          <Button variant="secondary" size="lg" className="group">
+                            Explore Collection
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </Button>
+                        </div>
+                        <div className="flex -space-x-4">
+                          {[...Array(4)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white"
+                            >
+                              {React.createElement(getCategoryIcon(categories[0].name), { className: "h-8 w-8 text-white" })}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            )}
+                  </Link>
+                </motion.div>
+              )}
 
-            {/* Grid of Categories */}
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            >
-              {categories.slice(1).map((category, idx) => {
-                const IconComponent = getCategoryIcon(category.name)
-                const colorClass = getCategoryColor(category.name)
-                
-                return (
-                  <motion.div
-                    key={category.name}
-                    variants={fadeInUp}
-                    custom={idx}
-                    whileHover={{ y: -8 }}
-                    className="group"
-                  >
-                    <Link to={`/products?category=${encodeURIComponent(category.name)}`}>
-                      <div className="relative overflow-hidden rounded-2xl bg-card border transition-all duration-300 hover:shadow-xl hover:border-primary/50">
-                        {/* Animated Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                        
-                        <div className="p-6">
-                          {/* Icon with Glow Effect */}
-                          <div className={`relative mb-4 inline-flex ${colorClass} rounded-xl p-3`}>
-                            <IconComponent className="h-8 w-8" />
-                            <div className="absolute inset-0 rounded-xl bg-primary/20 blur-xl opacity-0 transition-opacity group-hover:opacity-100" />
-                          </div>
-                          
-                          {/* Category Info */}
-                          <h3 className="text-sm sm:text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                            {formatCategoryName(category.name)}
-                          </h3>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1">
-                                <Package className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-sm font-medium text-primary">
-                                  {category.productCount}
-                                </span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {category.productCount === 1 ? 'item' : 'items'}
-                              </span>
-                            </div>
-                            
-                            <motion.div
-                              animate={{ x: 0 }}
-                              initial={{ x: -10 }}
-                              whileHover={{ x: 5 }}
-                              className="text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <ArrowRight className="h-4 w-4" />
-                            </motion.div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-
-            {/* View All Categories Link */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mt-12"
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="group border-2 hover:border-primary"
+              {/* Grid of Categories */}
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+                className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
               >
-                <Link to="/products">
-                  <span>View All Categories</span>
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </motion.div>
-          </>
-        )}
-      </div>
-    </section>
+                {categories.slice(1).map((category, idx) => {
+                  const IconComponent = getCategoryIcon(category.name)
+                  const colorClass = getCategoryColor(category.name)
+                  
+                  return (
+                    <CategoryCard
+                      key={category.name}
+                      category={category}
+                      index={idx}
+                      Icon={IconComponent}
+                      colorClass={colorClass}
+                    />
+                  )
+                })}
+              </motion.div>
+
+              {/* View All Categories Link */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mt-12"
+              >
+                <Button
+                  variant="outline"
+                  size="lg"
+                  asChild
+                  className="group border-2 hover:border-primary"
+                >
+                  <Link to="/products">
+                    <span>View All Categories</span>
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </motion.div>
+            </>
+          )}
+        </div>
+      </section>
 
       {/* Featured Products Section */}
       <section className="bg-muted/50 py-16">
@@ -650,7 +617,7 @@ export function Home() {
               className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
               {featuredProducts.map((product) => (
-                <motion.div key={product._id || product.id} variants={fadeInUp}>
+                <motion.div key={product.id} variants={fadeInUp}>
                   <ProductCard product={product} />
                 </motion.div>
               ))}
@@ -708,7 +675,7 @@ export function Home() {
               ) : (
                 bestSellers.map((product) => (
                   <motion.div
-                    key={product._id || product.id}
+                    key={product.id}
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
@@ -725,122 +692,122 @@ export function Home() {
 
       <AboutSection/>
 
+      {/* Newsletter Section */}
       <section className="py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/90"
-        >
-          <div className="relative px-8 py-16 text-center">
-            {/* Decorative background elements */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
-              <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
-            </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/90"
+          >
+            <div className="relative px-8 py-16 text-center">
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+                <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+              </div>
 
-            <div className="relative">
-              <motion.div
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-white/20"
-              >
-                <Mail className="size-8 text-white" />
-              </motion.div>
+              <div className="relative">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+                  className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-white/20"
+                >
+                  <Mail className="size-8 text-white" />
+                </motion.div>
 
-              <h2 className="text-3xl font-bold text-white">Join Our Newsletter</h2>
-              <p className="mx-auto mt-4 max-w-xl text-white/90">
-                Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
-              </p>
+                <h2 className="text-3xl font-bold text-white">Join Our Newsletter</h2>
+                <p className="mx-auto mt-4 max-w-xl text-white/90">
+                  Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+                </p>
 
-              <AnimatePresence mode="wait">
-                {isSubscribed ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="mx-auto mt-8 max-w-md"
-                  >
-                    <div className="rounded-lg bg-white/20 p-6 backdrop-blur-sm">
-                      <div className="flex items-center justify-center gap-3">
-                        <CheckCircle2 className="size-8 text-white" />
-                        <div>
-                          <p className="font-semibold text-white">Thank you for subscribing!</p>
-                          <p className="text-sm text-white/80">
-                            {subscribedEmail ? `We've sent updates to ${subscribedEmail}` : 'Check your inbox for exclusive offers'}
-                          </p>
+                <AnimatePresence mode="wait">
+                  {isSubscribed ? (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="mx-auto mt-8 max-w-md"
+                    >
+                      <div className="rounded-lg bg-white/20 p-6 backdrop-blur-sm">
+                        <div className="flex items-center justify-center gap-3">
+                          <CheckCircle2 className="size-8 text-white" />
+                          <div>
+                            <p className="font-semibold text-white">Thank you for subscribing!</p>
+                            <p className="text-sm text-white/80">
+                              {subscribedEmail ? `We've sent updates to ${subscribedEmail}` : 'Check your inbox for exclusive offers'}
+                            </p>
+                          </div>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleUnsubscribe}
+                          className="mt-3 text-white hover:bg-white/20"
+                        >
+                          Unsubscribe
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleUnsubscribe}
-                        className="mt-3 text-white hover:bg-white/20"
-                      >
-                        Unsubscribe
-                      </Button>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.form
-                    key="form"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    onSubmit={handleSubscribe}
-                    className="mx-auto mt-8 max-w-md"
-                  >
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <div className="relative flex-1">
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value)
-                            setEmailError('')
-                          }}
+                    </motion.div>
+                  ) : (
+                    <motion.form
+                      key="form"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      onSubmit={handleSubscribe}
+                      className="mx-auto mt-8 max-w-md"
+                    >
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="relative flex-1">
+                          <Input
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => {
+                              setEmail(e.target.value)
+                              setEmailError('')
+                            }}
+                            disabled={isSubmitting}
+                            className={`h-12 border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 ${
+                              emailError ? 'border-red-400 focus:border-red-400' : ''
+                            }`}
+                          />
+                        </div>
+                        <Button 
+                          type="submit" 
+                          variant="secondary" 
+                          size="lg" 
+                          className="h-12 px-8 font-semibold"
                           disabled={isSubmitting}
-                          className={`h-12 border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 ${
-                            emailError ? 'border-red-400 focus:border-red-400' : ''
-                          }`}
-                        />
+                        >
+                          {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                        </Button>
                       </div>
-                      <Button 
-                        type="submit" 
-                        variant="secondary" 
-                        size="lg" 
-                        className="h-12 px-8 font-semibold"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-                      </Button>
-                    </div>
-                    {emailError && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-2 text-left text-sm text-red-200"
-                      >
-                        {emailError}
-                      </motion.p>
-                    )}
-                    <p className="mt-3 text-xs text-white/60">
-                      No spam, ever. Unsubscribe anytime.
-                    </p>
-                  </motion.form>
-                )}
-              </AnimatePresence>
+                      {emailError && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-2 text-left text-sm text-red-200"
+                        >
+                          {emailError}
+                        </motion.p>
+                      )}
+                      <p className="mt-3 text-xs text-white/60">
+                        No spam, ever. Unsubscribe anytime.
+                      </p>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
+          </motion.div>
+        </div>
+      </section>
     </div>
   )
 }

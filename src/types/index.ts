@@ -4,6 +4,7 @@ export interface Product {
   price: number
   description: string
   regular_price: string
+  quantity: number
   sale_price: string
   category: string
   image: string
