@@ -42,6 +42,9 @@ const { pathname } = useLocation()
     window.scrollTo(0, 0)
   }, [pathname])
 
+  const isHomePage = pathname === "/"
+  const isAdminRoute = pathname.startsWith("/admin")
+
   return (
     <div className='overflow-x-hidden'>
 
@@ -76,7 +79,7 @@ const { pathname } = useLocation()
         <Route path="*" element={<NotFound />} />
       </Routes>
         <Toaster />
-      <NewsletterTrigger />
+       {isHomePage && !isAdminRoute && <NewsletterTrigger />}
     </ErrorBoundary>
     </div>
   )

@@ -29,9 +29,9 @@ export function useProduct(id: string | undefined) {
       if (!id) {
         throw new Error('Product ID is required')
       }
-      console.log('Fetching product with ID:', id)
+      // console.log('Fetching product with ID:', id)
       const { data } = await api.get<Product>(`/products/${id}`)
-      console.log('Product data received:', data)
+      // console.log('Product data received:', data)
       return data
     },
     enabled: !!id, // Only run if id exists
@@ -70,7 +70,7 @@ export function useCategoriesWithCounts() {
     queryKey: queryKeys.categoriesWithCounts,
     queryFn: async () => {
       const { data } = await api.get<Category[]>('/products/categories/with-counts')
-      console.log(data)
+      // console.log(data)
       return data
     },
   })

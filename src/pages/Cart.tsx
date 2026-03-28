@@ -106,12 +106,12 @@ export function Cart() {
                     <div className="flex flex-1 flex-col">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <Link
-                            to={`/products/${item.product.id}`}
-                            className="font-medium text-foreground hover:text-primary"
-                          >
-                            {item.product.title}
-                          </Link>
+                         <Link
+  to={`/products/${item.product.id}`}
+  className="block max-w-[220px] font-medium text-foreground hover:text-primary line-clamp-2"
+>
+  {item.product.title}
+</Link>
                           <p className="mt-1 text-sm capitalize text-muted-foreground">
                             {item.product.category}
                           </p>
@@ -210,9 +210,11 @@ export function Cart() {
                         {item.quantity}
                       </span>
                     </div>
-                    <div className="flex-1 truncate text-sm">
-                      <p className="truncate font-medium">{item.product.title}</p>
-                    </div>
+                   <div className="flex-1 min-w-0 text-sm">
+  <p className="font-medium line-clamp-2">
+    {item.product.title}
+  </p>
+</div>
                     <p className="text-sm font-medium">
                       {formatPrice(item.product.price * item.quantity)}
                     </p>
