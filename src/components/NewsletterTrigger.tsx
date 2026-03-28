@@ -9,10 +9,34 @@ export function NewsletterTrigger() {
   const { isSubscribed } = useNewsletter()
   const [isOpen, setIsOpen] = useState(false)
   const [showFloatingButton, setShowFloatingButton] = useState(false)
+  const [neverShow, setNeverShow] = useState(false)
+
+  // Check localStorage on mount and listen for changes
+  useEffect(() => {
+    const checkNeverShow = () => {
+      const neverShowValue = localStorage.getItem('newsletter_never_show') === 'true'
+      setNeverShow(neverShowValue)
+    }
+    
+    // Initial check
+    checkNeverShow()
+    
+    // Listen for storage changes (in case it's changed in another tab)
+    window.addEventListener('storage', checkNeverShow)
+    
+    // Custom event for when localStorage changes within the same tab
+    const handleNeverShowChange = () => {
+      checkNeverShow()
+    }
+    window.addEventListener('neverShowChanged', handleNeverShowChange)
+    
+    return () => {
+      window.removeEventListener('storage', checkNeverShow)
+      window.removeEventListener('neverShowChanged', handleNeverShowChange)
+    }
+  }, [])
 
   useEffect(() => {
-    const neverShow = localStorage.getItem('newsletter_never_show')
-    
     // Show popup after 5 seconds if not subscribed and not opted out
     if (!isSubscribed && !neverShow) {
       const timer = setTimeout(() => {
@@ -24,7 +48,7 @@ export function NewsletterTrigger() {
     
     // Show floating button after scroll
     const handleScroll = () => {
-      if (window.scrollY > 300 && !isSubscribed) {
+      if (window.scrollY > 300 && !isSubscribed && !neverShow) {
         setShowFloatingButton(true)
       } else {
         setShowFloatingButton(false)
@@ -33,10 +57,10 @@ export function NewsletterTrigger() {
     
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isSubscribed])
+  }, [isSubscribed, neverShow])
 
-  // Don't show floating button if already subscribed
-  if (isSubscribed) return null
+  // Don't show anything if already subscribed or opted out
+  if (isSubscribed || neverShow) return null
 
   return (
     <>
@@ -67,7 +91,16 @@ export function NewsletterTrigger() {
         </motion.div>
       )}
       
-      <NewsletterModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <NewsletterModal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        onNeverShow={() => {
+          // Update the neverShow state when modal closes with "don't show again"
+          setNeverShow(true)
+          // Dispatch a custom event to notify other components
+          window.dispatchEvent(new Event('neverShowChanged'))
+        }}
+      />
     </>
   )
 }

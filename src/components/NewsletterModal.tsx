@@ -11,9 +11,10 @@ import { useNewsletterStore } from '@/store/newsletterStore'
 interface NewsletterModalProps {
   isOpen: boolean
   onClose: () => void
+    onNeverShow?: () => void
 }
 
-export function NewsletterModal({ isOpen, onClose }: NewsletterModalProps) {
+export function NewsletterModal({ isOpen, onClose, onNeverShow  }: NewsletterModalProps) {
   const { isSubscribed: globalSubscribed, subscribe } = useNewsletterStore()
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -51,11 +52,13 @@ export function NewsletterModal({ isOpen, onClose }: NewsletterModalProps) {
     
     // Simulate API call
     setTimeout(() => {
-       subscribe(email)
-
+      subscribe(email)
 
       if (dontShowAgain) {
         localStorage.setItem('newsletter_never_show', 'true')
+        onNeverShow?.() // Call the callback
+        // Dispatch custom event
+        window.dispatchEvent(new Event('neverShowChanged'))
       }
       setIsSubscribed(true)
       setIsSubmitting(false)
@@ -70,6 +73,9 @@ export function NewsletterModal({ isOpen, onClose }: NewsletterModalProps) {
   const handleClose = () => {
     if (dontShowAgain) {
       localStorage.setItem('newsletter_never_show', 'true')
+      onNeverShow?.() // Call the callback
+      // Dispatch custom event
+      window.dispatchEvent(new Event('neverShowChanged'))
     }
     onClose()
   }
