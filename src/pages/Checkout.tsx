@@ -128,6 +128,7 @@ export function Checkout() {
     
     setIsSubmitting(false)
     setIsComplete(true)
+    window.scrollTo(0, 0)
     clearCart()
   }
 
@@ -676,8 +677,10 @@ export function Checkout() {
                         {item.quantity}
                       </span>
                     </div>
-                    <div className="flex-1 truncate text-sm">
-                      <p className="truncate font-medium">{item.product.title}</p>
+                    <div className="flex-1 min-w-0 text-sm">
+                      <p className="font-medium line-clamp-2">
+                        {item.product.title}
+                      </p>
                     </div>
                     <p className="text-sm font-medium">
                       {formatPrice(item.product.price * item.quantity)}

@@ -153,7 +153,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Quick View Dialog - Mobile Responsive */}
       <Dialog open={isQuickViewOpen} onOpenChange={setIsQuickViewOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-hidden p-0 rounded-xl sm:rounded-2xl mx-auto"
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-scroll sm:overflow-hidden p-0 rounded-xl sm:rounded-2xl mx-auto"
          style={{ animationDuration: '400ms' }}>
           <DialogTitle className="sr-only">Quick View - {product.title}</DialogTitle>
           
@@ -189,9 +189,9 @@ export function ProductCard({ product }: ProductCardProps) {
               </Badge>
 
               {/* Title */}
-              <h2 className="mb-1.5 sm:mb-2 text-lg sm:text-2xl font-bold leading-tight line-clamp-2">
+              {/* <h2 className="mb-2 sm:mb-3 text-lg sm:text-2xl font-bold leading-snug break-words line-clamp-2">
                 {product.title}
-              </h2>
+              </h2> */}
 
               {/* Price */}
               <div className="mb-3 sm:mb-4">
@@ -217,7 +217,7 @@ export function ProductCard({ product }: ProductCardProps) {
 </div>
 
               {/* Quantity Selector */}
-              <div className="mb-4 sm:mb-6">
+              {/* <div className="mb-4 sm:mb-6">
                 <label className="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-medium">Quantity:</label>
                 <div className="flex items-center gap-2 sm:gap-3">
                   <Button
@@ -239,7 +239,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     <Plus className="size-3 sm:size-4" />
                   </Button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Add to Cart Button */}
               <Button 
@@ -251,28 +251,8 @@ export function ProductCard({ product }: ProductCardProps) {
                 ADD TO CART - {formatPrice(product.price * quantity)}
               </Button>
 
-              {/* Product Info */}
-              <div className="border-t pt-3 sm:pt-4">
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">Category:</span> {product.category}
-                </p>
-              </div>
-
-              {/* Share Buttons */}
-              <div className="mt-3 sm:mt-4 flex items-center gap-2 sm:gap-3">
-                <span className="text-xs sm:text-sm font-medium">Share:</span>
-                <div className="flex gap-1.5 sm:gap-2">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-blue-50 hover:text-blue-600">
-                    <Facebook className="size-3 sm:size-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-sky-50 hover:text-sky-600">
-                    <Twitter className="size-3 sm:size-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full hover:bg-blue-50 hover:text-blue-800">
-                    <Linkedin className="size-3 sm:size-4" />
-                  </Button>
-                </div>
-              </div>
+             
+            
             </div>
           </div>
         </DialogContent>
